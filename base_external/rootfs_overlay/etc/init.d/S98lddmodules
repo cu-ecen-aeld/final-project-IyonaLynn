@@ -8,6 +8,8 @@ case "$1" in
         /usr/bin/module_load faulty
         echo "Loading hello module"
         modprobe hello
+		echo "Loading aesdchar module"
+		aesdchar_load
         ;;
     stop)
         echo "Unloading SCULL module"
@@ -16,6 +18,8 @@ case "$1" in
         /usr/bin/module_unload
         echo "Removing hello module"
         rmmod hello
+        echo "Unloading aesdchar module"
+		aesdchar_unload
         ;;
     *)
         echo "Usage: $0 {start|stop}"
