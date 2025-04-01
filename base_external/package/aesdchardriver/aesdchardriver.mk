@@ -5,7 +5,7 @@
 #
 ##############################################################
 
-AESDCHARDRIVER_VERSION = '7f0073e41018cae8cc346df20ebbccb8bb5c02d8'
+AESDCHARDRIVER_VERSION = '49eab8a30ca9ea15a55e9268e96cbbf7ec0974c3'
 # Note: Be sure to reference the *ssh* repository URL here (not https) to work properly
 # with ssh keys and the automated build/test system.
 # Your site should start with git@github.com:
