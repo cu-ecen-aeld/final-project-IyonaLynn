@@ -1,0 +1,61 @@
+#!/bin/sh
+#
+# I2C Init Script for Accelerometer Project with Sensor Detection
+#
+
+I2C_BUS=1  # Change based on which I2C bus I will use later
+
+case "$1" in
+  start)
+    echo "Starting I2C initialization for accelerometer project..."
+
+    echo "Loading i2c-bcm2835..."
+    modprobe i2c-bcm2835
+    [ $? -ne 0 ] && echo "Failed to load i2c-bcm2835" || echo "Loaded i2c-bcm2835"
+
+    echo "Loading i2c-dev..."
+    modprobe i2c-dev
+    [ $? -ne 0 ] && echo "Failed to load i2c-dev" || echo "Loaded i2c-dev"
+
+    # Wait a moment to ensure /dev/i2c-* is created
+    sleep 1
+
+    # Check if i2cdetect exists
+    if command -v i2cdetect > /dev/null; then
+        echo "Detecting I2C devices on bus $I2C_BUS..."
+        i2cdetect -y $I2C_BUS
+
+        # Optional: Check for a specific sensor address (example: 0x18 for BMA400)
+        if i2cdetect -y $I2C_BUS | grep -q "18"; then
+            echo "I2C Sensor (e.g., BMA400) detected at address 0x18."
+        else
+            echo "Warning: I2C Sensor not detected at expected address (0x18)."
+        fi
+    else
+        echo "i2cdetect not found. Please install i2c-tools to enable I2C scanning."
+    fi
+
+    echo "I2C initialization complete."
+    ;;
+
+  stop)
+    echo "Stopping I2C services..."
+
+    modprobe -r i2c-dev
+    modprobe -r i2c-bcm2835
+
+    echo "I2C modules unloaded."
+    ;;
+
+  restart|reload)
+    "$0" stop
+    "$0" start
+    ;;
+
+  *)
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
+    ;;
+esac
+
+exit 0

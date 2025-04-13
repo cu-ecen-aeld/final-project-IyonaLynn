@@ -17,9 +17,6 @@ endef
 define AESD_PROJECT_INSTALL_TARGET_CMDS
 	# Install user-space app
 	$(INSTALL) -m 0755 $(@D)/accl/i2c_read_app $(TARGET_DIR)/usr/bin
-	
-	# Install init script
-	$(INSTALL) -m 0755 $(@D)/init.d/S95i2csetup $(TARGET_DIR)/etc/init.d
 endef
 
 $(eval $(generic-package))
