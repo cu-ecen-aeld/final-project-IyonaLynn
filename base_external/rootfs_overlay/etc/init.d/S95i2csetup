@@ -1,35 +1,61 @@
 #!/bin/sh
 #
 # I2C Init Script for Accelerometer Project with Sensor Detection
+# To analyse my I2C error I have tried to add many debug messages
 #
 
-I2C_BUS=1  # Change based on which I2C bus I will use later
+#Better failsafe
+set -e
+
+I2C_BUS=1
+
+#if CS is NC
+EXPECTED_ADDR_1="14"
+
+#if CS is pulled high
+EXPECTED_ADDR_2="15"
+APP_PATH="/usr/bin/i2c_read_app"
+APP_LOG="/var/log/i2c_read_app.log"
 
 case "$1" in
   start)
-    echo "Starting I2C initialization for accelerometer project..."
+    echo "Starting I2C initialization for accelerometer project"
 
-    echo "Loading i2c-bcm2835..."
+    echo "Loading kernel modules"
     modprobe i2c-bcm2835
     [ $? -ne 0 ] && echo "Failed to load i2c-bcm2835" || echo "Loaded i2c-bcm2835"
-
-    echo "Loading i2c-dev..."
     modprobe i2c-dev
     [ $? -ne 0 ] && echo "Failed to load i2c-dev" || echo "Loaded i2c-dev"
 
-    # Wait a moment to ensure /dev/i2c-* is created
+    # Wait to ensure /dev/i2c-* is created
     sleep 1
 
     # Check if i2cdetect exists
+    
+    if [ ! -e "/dev/i2c-$I2C_BUS" ]; then
+      echo "[ERROR] /dev/i2c-$I2C_BUS not found. I2C setup failed!"
+      exit 1
+    else
+      echo "[OK] /dev/i2c-$I2C_BUS available."
+    fi
+    
     if command -v i2cdetect > /dev/null; then
-        echo "Detecting I2C devices on bus $I2C_BUS..."
-        i2cdetect -y $I2C_BUS
+        echo "Detecting I2C devices on bus $I2C_BUS"
+        DETECT_OUTPUT=$(i2cdetect -y $I2C_BUS)
 
-        # Optional: Check for a specific sensor address (example: 0x18 for BMA400)
-        if i2cdetect -y $I2C_BUS | grep -q "18"; then
-            echo "I2C Sensor (e.g., BMA400) detected at address 0x18."
+        echo "$DETECT_OUTPUT"
+
+        if echo "$DETECT_OUTPUT" | grep -q "$EXPECTED_ADDR_1\|$EXPECTED_ADDR_2"; then
+            echo "[OK] BMA400 detected."
+
+            if [ -x "$APP_PATH" ]; then
+                echo "[I2C INIT] Launching $APP_PATH..."
+                "$APP_PATH" > "$APP_LOG" 2>&1 &
+            else
+                echo "[ERROR] App not found at $APP_PATH"
+            fi
         else
-            echo "Warning: I2C Sensor not detected at expected address (0x18)."
+            echo "Warning: BMA400 not detected at expected addresses (0x14/0x15)."
         fi
     else
         echo "i2cdetect not found. Please install i2c-tools to enable I2C scanning."
@@ -40,9 +66,9 @@ case "$1" in
 
   stop)
     echo "Stopping I2C services..."
-
-    modprobe -r i2c-dev
-    modprobe -r i2c-bcm2835
+    pkill -f "$APP_PATH" || echo "[INFO] No app running"
+    modprobe -r i2c-dev || true
+    modprobe -r i2c-bcm2835 || true
 
     echo "I2C modules unloaded."
     ;;
