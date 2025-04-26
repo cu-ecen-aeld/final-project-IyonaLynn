@@ -4,7 +4,7 @@
 #
 ##############################################################
 
-AESD_PROJECT_VERSION = '6326559ac1b4a1001b30aa877bfbd593e56b517e'
+AESD_PROJECT_VERSION = '368c331e4e9656222e76fd5596429b2b38cd989b'
 AESD_PROJECT_SITE = git@github.com:IyonaLynn/Accelerometer_Character_Device_Driver.git
 AESD_PROJECT_SITE_METHOD = git
 AESD_PROJECT_GIT_SUBMODULES = YES
