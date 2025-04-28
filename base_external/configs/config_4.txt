@@ -30,3 +30,8 @@ dtparam=krnbt=on
 
 # Enable I2C interface
 dtparam=i2c_arm=on
+
+# Enable VC4 graphics driver
+dtoverlay=vc4-fkms-v3d
+# Minimum 256MB for GPU
+gpu_mem=256  
