@@ -1,0 +1,55 @@
+#!/bin/sh
+
+# Description:       Inserts char_driver.ko and launches demo_app from repo
+
+
+REPO_ROOT="/home/iyno9846/github/Accelerometer_Character_Device_Driver"
+MODULE_NAME="char_driver"
+MODULE_PATH="$REPO_ROOT/char_driver/char_driver.ko"
+APP_PATH="$REPO_ROOT/demo_app/demo_app"
+PID_FILE="/var/run/demo_app.pid"
+
+case "$1" in
+  start)
+    echo "[$(date)] Loading kernel module: $MODULE_NAME"
+    if ! /sbin/lsmod | grep -q "^${MODULE_NAME}"; then
+      /sbin/insmod "$MODULE_PATH" || {
+        echo "ERROR: Failed to insmod $MODULE_PATH"; exit 1; }
+    else
+      echo "Module $MODULE_NAME already loaded"
+    fi
+
+    echo "[$(date)] Starting demo_app"
+    nohup "$APP_PATH" >/dev/null 2>&1 &
+    echo $! > "$PID_FILE"
+    echo "demo_app PID=$(cat "$PID_FILE")"
+    ;;
+    
+  stop)
+    echo "[$(date)] Stopping demo_app"
+    if [ -f "$PID_FILE" ]; then
+      kill "$(cat "$PID_FILE")" 2>/dev/null || true
+      rm -f "$PID_FILE"
+    else
+      echo "demo_app not running"
+    fi
+
+    echo "[$(date)] Unloading module: $MODULE_NAME"
+    /sbin/rmmod "$MODULE_NAME" 2>/dev/null || \
+      echo "Module $MODULE_NAME not loaded"
+    ;;
+    
+  restart)
+    $0 stop
+    sleep 1
+    $0 start
+    ;;
+    
+  *)
+    echo "Usage: $0 {start|stop|restart}"
+    exit 2
+    ;;
+esac
+
+exit 0
+
