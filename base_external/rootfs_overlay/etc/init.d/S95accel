@@ -1,9 +1,12 @@
 #!/bin/sh
 #
-# S95accel   Start/stop the accel char‐driver + demo_app
+# S95accel   Start/stop the accel char‐driver + demo_app + I²C instantiation
 #
 
 MODULE_NAME="char_driver"
+I2C_DRIVER_NAME="accel"
+I2C_BUS=1
+I2C_ADDR=0x68
 KO_PATH="/lib/modules/$(uname -r)/kernel/drivers/accel/char_driver.ko"
 APP_PATH="/usr/bin/demo_app"
 PID_FILE="/var/run/demo_app.pid"
@@ -12,7 +15,6 @@ case "$1" in
   start)
     echo "[$(date)] Loading kernel module: ${MODULE_NAME}"
     if ! /sbin/lsmod | grep -q "^${MODULE_NAME}"; then
-      # try modprobe first (requires depmod run at build time)
       if ! /sbin/modprobe ${MODULE_NAME}; then
         echo "modprobe failed, trying insmod ${KO_PATH}"
         /sbin/insmod "${KO_PATH}" || {
@@ -23,6 +25,13 @@ case "$1" in
     else
       echo "Module ${MODULE_NAME} already loaded"
     fi
+
+    echo "[$(date)] Instantiating I²C device ${I2C_DRIVER_NAME} at 0x${I2C_ADDR#0x} on bus ${I2C_BUS}"
+    # Tell the I²C core that there's a device here
+    echo "${I2C_DRIVER_NAME} ${I2C_ADDR}" > \
+      /sys/bus/i2c/devices/i2c-${I2C_BUS}/new_device || {
+        echo "WARN: could not instantiate I²C device"
+      }
 
     echo "[$(date)] Starting demo_app"
     nohup "${APP_PATH}" >/dev/null 2>&1 &
@@ -38,6 +47,12 @@ case "$1" in
     else
       echo "demo_app not running"
     fi
+
+    echo "[$(date)] Removing I²C device at 0x${I2C_ADDR#0x} on bus ${I2C_BUS}"
+    echo "${I2C_ADDR}" > \
+      /sys/bus/i2c/devices/i2c-${I2C_BUS}/delete_device 2>/dev/null || {
+        echo "WARN: could not delete I²C device"
+      }
 
     echo "[$(date)] Unloading module: ${MODULE_NAME}"
     /sbin/rmmod "${MODULE_NAME}" 2>/dev/null || \
