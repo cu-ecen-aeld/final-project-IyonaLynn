@@ -1,0 +1,21 @@
+CHAR_DRIVER_KMOD_VERSION        = cf97d647fc060a540bec263c749e7dcd73d11fcf
+CHAR_DRIVER_KMOD_SITE           = git@github.com:IyonaLynn/Accelerometer_Character_Device_Driver.git
+CHAR_DRIVER_KMOD_SITE_METHOD    = git
+CHAR_DRIVER_KMOD_GIT_SUBMODULES = YES
+CHAR_DRIVER_KMOD_MODULE_SUBDIRS = char_driver
+
+define CHAR_DRIVER_KMOD_BUILD_MODULE_CMDS
+	$(MAKE) -C $(LINUX_DIR) M=$(@D)/char_driver modules
+endef
+
+define CHAR_DRIVER_KMOD_INSTALL_TARGET_MODULE_CMDS
+	@echo ">>> Installing accel kernel module"
+	install -D -m 0644 \
+	  $(@D)/char_driver/char_driver.ko \
+	  $(TARGET_DIR)/lib/modules/$(LINUX_VERSION)/kernel/drivers/accel/char_driver.ko
+	@echo ">>> Regenerating module dependencies"
+	depmod -a -b $(TARGET_DIR) $(LINUX_VERSION)
+endef
+
+$(eval $(kernel-module))
+

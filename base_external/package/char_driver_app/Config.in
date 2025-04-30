@@ -1,0 +1,7 @@
+config BR2_PACKAGE_CHAR_DRIVER_APP
+    bool "char_driver demo & test applications"
+    help
+      Builds and installs the user-space tools:
+      - lsm9ds1_test
+      - gpio_test
+      - demo_app

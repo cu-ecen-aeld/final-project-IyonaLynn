@@ -1,6 +1,0 @@
-config BR2_PACKAGE_AESD_PROJECT
-    bool "aesd-project"
-    help
-      Enable I2C Accelerometer Character Driver Project.
-      This will build and install your application and setup scripts
-      into /usr/bin and /etc/init.d respectively.
