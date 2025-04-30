@@ -30,10 +30,13 @@ endef
 
 define AESD_PROJECT_INSTALL_TARGET_MODULE_CMDS
 	# install the .ko into the modules tree
+	@echo ">>> Installing accel driver module"
 	install -D -m 0644 \
 	    $(@D)/char_driver/char_driver.ko \
 	    $(TARGET_DIR)/lib/modules/$(LINUX_VERSION)/kernel/drivers/accel/char_driver.ko
-	depmod -a    
+	    
+	@echo ">>> Regenerating module dependencies"	    
+	depmod -a -b $(TARGET_DIR) $(LINUX_VERSION)  
 
 endef
 $(eval $(kernel-module))
