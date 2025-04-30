@@ -14,8 +14,8 @@ define AESD_PROJECT_BUILD_CMDS
 	$(MAKE) $(TARGET_CONFIGURE_OPTS) -C $(@D)/lsm9ds1_test all
 	$(MAKE) $(TARGET_CONFIGURE_OPTS) -C $(@D)/gpio_test   all
 	$(MAKE) $(TARGET_CONFIGURE_OPTS) \
-	    CC="$(TARGET_CC)" CFLAGS="$(TARGET_CFLAGS)" \
-	    -C $(@D)/demo_app all
+		CC="$(TARGET_CC)" CFLAGS="$(TARGET_CFLAGS)" \
+		-C $(@D)/demo_app all
 endef
 
 define AESD_PROJECT_BUILD_MODULE_CMDS
@@ -32,8 +32,8 @@ define AESD_PROJECT_INSTALL_TARGET_MODULE_CMDS
 	# install the .ko into the modules tree
 	@echo ">>> Installing accel driver module"
 	install -D -m 0644 \
-	    $(@D)/char_driver/char_driver.ko \
-	    $(TARGET_DIR)/lib/modules/$(LINUX_VERSION)/kernel/drivers/accel/char_driver.ko
+		$(@D)/char_driver/char_driver.ko \
+		$(TARGET_DIR)/lib/modules/$(LINUX_VERSION)/kernel/drivers/accel/char_driver.ko
 	    
 	@echo ">>> Regenerating module dependencies"	    
 	depmod -a -b $(TARGET_DIR) $(LINUX_VERSION)  
