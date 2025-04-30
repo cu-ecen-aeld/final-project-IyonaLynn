@@ -4,25 +4,15 @@
 #
 ##############################################################
 
-AESD_PROJECT_VERSION         = '9ca56435b14c8dc98b0c401d1950cdfa439b15e2'
+AESD_PROJECT_VERSION         = 'a3c9b283ef26e4782b15481c799bf6872982aaa8'
 AESD_PROJECT_SITE            = git@github.com:IyonaLynn/Accelerometer_Character_Device_Driver.git
 AESD_PROJECT_SITE_METHOD     = git
 AESD_PROJECT_GIT_SUBMODULES  = YES
 AESD_PROJECT_MODULE_SUBDIRS  = char_driver
-# GUI related
-AESD_PROJECT_ACCEL_GUI_CFLAGS = -Wall -Wextra -g \
-    $(shell $(PKG_CONFIG_HOST_BINARY) --cflags gtk+-3.0)
-AESD_PROJECT_ACCEL_GUI_LDFLAGS = \
-    $(shell $(PKG_CONFIG_HOST_BINARY) --libs gtk+-3.0) -lgpiod -lm
 
 define AESD_PROJECT_BUILD_CMDS
 	$(MAKE) $(TARGET_CONFIGURE_OPTS) -C $(@D)/lsm9ds1_test all
 	$(MAKE) $(TARGET_CONFIGURE_OPTS) -C $(@D)/gpio_test   all
-	$(MAKE) $(TARGET_CONFIGURE_OPTS) \
-	    CFLAGS="$(TARGET_CFLAGS) $(AESD_PROJECT_ACCEL_GUI_CFLAGS)" \
-	    LDFLAGS="$(TARGET_LDFLAGS) $(AESD_PROJECT_ACCEL_GUI_LDFLAGS)" \
-	    -C $(@D)/accel_gui all
-	    
 	$(MAKE) $(TARGET_CONFIGURE_OPTS) \
 	    CC="$(TARGET_CC)" CFLAGS="$(TARGET_CFLAGS)" \
 	    -C $(@D)/demo_app all
@@ -35,7 +25,6 @@ endef
 define AESD_PROJECT_INSTALL_TARGET_CMDS
 	$(INSTALL) -m 0755 $(@D)/lsm9ds1_test/lsm9ds1_test  $(TARGET_DIR)/usr/bin
 	$(INSTALL) -m 0755 $(@D)/gpio_test/gpio_test        $(TARGET_DIR)/usr/bin
-	$(INSTALL) -m 0755 $(@D)/accel_gui/accel_gui        $(TARGET_DIR)/usr/bin
 	$(INSTALL) -m 0755 $(@D)/demo_app/demo_app          $(TARGET_DIR)/usr/bin
 endef
 
