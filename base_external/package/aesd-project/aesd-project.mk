@@ -32,7 +32,9 @@ define AESD_PROJECT_INSTALL_TARGET_MODULE_CMDS
 	# install the .ko into the modules tree
 	install -D -m 0644 \
 	    $(@D)/char_driver/char_driver.ko \
-	    $(TARGET_DIR)/lib/modules/$(LINUX_VERSION)/kernel/drivers/aesdchar.ko
+	    $(TARGET_DIR)/lib/modules/$(LINUX_VERSION)/kernel/drivers/accel/char_driver.ko
+	depmod -a    
+
 endef
 $(eval $(kernel-module))
 $(eval $(generic-package))
